@@ -1,0 +1,2 @@
+rootProject.name = "KotlinTravelBook"
+include ':app'
