@@ -2,6 +2,7 @@ package com.atilsamancioglu.kotlintravelbook.view
 
 import android.Manifest
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.LocationListener
 import android.location.LocationManager
@@ -43,6 +44,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
     var placeFromMain: Place? = null
     private lateinit var db: PlaceDatabase
     private lateinit var placeDao: PlaceDao
+    private lateinit var sharedPreferences : SharedPreferences
+    var trackBoolean : Boolean? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,6 +64,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
         selectedLongitude = 0.0
 
         binding.saveButton.isEnabled = false
+
+        sharedPreferences =
+            getSharedPreferences("com.atilsamancioglu.kotlintravelbook", MODE_PRIVATE)
+        trackBoolean = false
+
 
         db = Room.databaseBuilder(
             applicationContext,
@@ -93,10 +101,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
             binding.deleteButton.visibility = View.GONE
             locationManager = this.getSystemService(LOCATION_SERVICE) as LocationManager
             locationListener = LocationListener { location ->
-                val sharedPreferences =
-                    getSharedPreferences("com.atilsamancioglu.kotlintravelbook", MODE_PRIVATE)
-                val trackBoolean = sharedPreferences.getBoolean("trackBoolean", false)
-                if (!trackBoolean) {
+                trackBoolean = sharedPreferences.getBoolean("trackBoolean", false)
+                if (!trackBoolean!!) {
                     val userLocation = LatLng(location.latitude, location.longitude)
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15f))
                     sharedPreferences.edit().putBoolean("trackBoolean", true).apply()
