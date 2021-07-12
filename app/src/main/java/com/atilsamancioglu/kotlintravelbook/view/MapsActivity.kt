@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
@@ -100,13 +101,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
             binding.saveButton.visibility = View.VISIBLE
             binding.deleteButton.visibility = View.GONE
             locationManager = this.getSystemService(LOCATION_SERVICE) as LocationManager
-            locationListener = LocationListener { location ->
-                trackBoolean = sharedPreferences.getBoolean("trackBoolean", false)
-                if (!trackBoolean!!) {
-                    val userLocation = LatLng(location.latitude, location.longitude)
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15f))
-                    sharedPreferences.edit().putBoolean("trackBoolean", true).apply()
+            locationListener = object : LocationListener {
+                override fun onLocationChanged(location: Location) {
+                    trackBoolean = sharedPreferences.getBoolean("trackBoolean", false)
+                    if (!trackBoolean!!) {
+                        val userLocation = LatLng(location.latitude, location.longitude)
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15f))
+                        sharedPreferences.edit().putBoolean("trackBoolean", true).apply()
+                    }
                 }
+
             }
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 //request permission
